@@ -1,0 +1,21 @@
+#gera o json a partir do xml
+import xmltodict
+import json
+import pandas as pd
+
+xml_f = '/kaggle/input/db-full/full database.xml'
+# Ler o arquivo XML
+with open(xml_f, 'r') as xml_file:
+    xml_content = xml_file.read()
+
+# Converter XML para dicionário Python
+data_dict = xmltodict.parse(xml_content)
+print(data_dict)
+# Converter dicionário Python para JSON
+json_data = json.dumps(data_dict, indent=4)
+
+# Salvar JSON em um arquivo
+with open('/kaggle/working/output.json', 'w') as json_file:
+    json_file.write(json_data)
+
+print("Conversão concluída. O JSON foi salvo em 'output.json'.")

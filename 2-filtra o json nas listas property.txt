@@ -1,0 +1,36 @@
+#filtra o json nas listas property
+import json
+import pandas as pd
+
+
+# Carregar o arquivo JSON
+with open('/content/drive/MyDrive/MESTRADO/output.json', 'r') as file:
+    data = json.load(file)
+
+
+# Função para localizar todas as listas "property"
+def find_all_property_lists(data, results=None):
+    if results is None:
+        results = []
+        
+    if isinstance(data, dict):
+        for key, value in data.items():
+            if key == "property" and isinstance(value, list):
+                results.append(value)
+            elif isinstance(value, (dict, list)):
+                find_all_property_lists(value, results)
+    elif isinstance(data, list):
+        for item in data:
+            find_all_property_lists(item, results)
+    
+    return results
+
+# Executar a função para encontrar todas as listas "property"
+property_lists = find_all_property_lists(data)
+
+if property_lists:
+   # Converter os resultados em uma tabela usando pandas
+   df = pd.DataFrame(property_lists)
+
+# Exibir a tabela
+print(df)

@@ -1,0 +1,47 @@
+#cria o dataset apenas com os smiles e os respectivos valores do atributo
+import json
+import pandas as pd
+
+# Carregar o arquivo JSON
+with open('/content/drive/MyDrive/MESTRADO/output.json', 'r') as file:
+    data = json.load(file)
+
+# Função para localizar todos os objetos "SMILES" e "<atributo>" em listas "property"
+def find_smiles_and_atributo(data, atributo, results=None):
+    if results is None:
+        results = []
+        
+    if isinstance(data, dict):
+        for key, value in data.items():
+            if key == "property" and isinstance(value, list):
+                smiles_value = None
+                bioavailability_value = None
+                for item in value:
+                    if isinstance(item, dict):
+                        if item.get("kind") == "SMILES":
+                            smiles_value = item.get("value")
+                        if item.get("kind") == atributo:
+                            bioavailability_value = item.get("value")
+                if smiles_value or bioavailability_value:
+                    results.append({"SMILES": smiles_value, atributo: bioavailability_value})
+            elif isinstance(value, (dict, list)):
+                # Pass 'atributo' correctly in the recursive call
+                find_smiles_and_atributo(value, atributo, results)  
+    elif isinstance(data, list):
+        for item in data:
+            # Pass 'atributo' correctly in the recursive call
+            find_smiles_and_atributo(item, atributo, results) 
+    
+    return results
+
+# Executar a função para encontrar todos os objetos "SMILES" e "Bioavailability"
+results = find_smiles_and_atributo(data, "Bioavailability")
+
+# Converter os resultados em uma tabela usando pandas
+df = pd.DataFrame(results)
+
+# (Opcional) Exportar para CSV
+df.to_csv('resultados_smiles_atributo.csv', index=False)
+
+# Exibir a tabela
+print(df)
